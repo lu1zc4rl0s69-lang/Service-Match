@@ -14,6 +14,4 @@ Tecnologias Utilizadas
     Análise de Dados & BI: Looker Studio
     Desenvolvimento Recomendado: React (Frontend) e Node.js / Python / Java (Backend)
 
-Licença
-
-  Este projeto foi desenvolvido para fins académicos e de portfólio. Todos os direitos reservados.
+Este projeto foi desenvolvido para fins académicos e de portfólio. Todos os direitos reservados.
