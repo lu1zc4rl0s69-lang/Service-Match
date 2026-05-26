@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard | ServiceMatch</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout :: sidebar('Cliente')}"></div>
+
+    <div class="main-content" id="mainContent">
+        <div class="topbar">
+            <span class="topbar-title">Dashboard</span>
+        </div>
+        <div class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="page-header">
+                <h1 th:text="'Olá, ' + ${usuario.nome.split(' ')[0]} + '!'">Olá!</h1>
+                <p>Encontre profissionais de confiança para seus serviços</p>
+            </div>
+
+            <!-- Busca rápida -->
+            <div class="card mb-3" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#bfdbfe">
+                <div class="card-body">
+                    <form th:action="@{/cliente/buscar}" method="get" style="display:flex;gap:12px;flex-wrap:wrap">
+                        <div style="flex:1;min-width:200px;position:relative">
+                            <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray-400)"></i>
+                            <input type="text" name="termo" class="form-control" placeholder="Buscar por nome, categoria ou serviço…" style="padding-left:36px;height:44px"/>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-search"></i> Buscar Profissionais
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stat-cards">
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="bi bi-check-circle-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${totalChamados}">0</div>
+                        <div class="stat-label">Chamados Abertos</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon amber"><i class="bi bi-star-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${totalAvaliacoes}">0</div>
+                        <div class="stat-label">Avaliações Feitas</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${profissionaisDestaque.size()}">0</div>
+                        <div class="stat-label">Profissionais Disponíveis</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon cyan"><i class="bi bi-clipboard-check-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${totalConcluidos}">0</div>
+                        <div class="stat-label">Serviços Concluídos</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categorias -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <span class="card-title">Categorias Populares</span>
+                    <a th:href="@{/cliente/buscar}" class="btn btn-ghost btn-sm">Ver todas <i class="bi bi-arrow-right"></i></a>
+                </div>
+                <div class="card-body">
+                    <div class="cat-grid">
+                        <a th:each="cat : ${categorias}"
+                           th:href="@{/cliente/buscar(categoriaId=${cat.id})}"
+                           class="cat-item">
+                            <span class="cat-icon" th:text="${cat.icone}">⚡</span>
+                            <span class="cat-name" th:text="${cat.nome}">Categoria</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <!-- Profissionais em Destaque -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Profissionais em Destaque</span>
+                        <a th:href="@{/cliente/buscar}" class="btn btn-ghost btn-sm">Ver todos <i class="bi bi-arrow-right"></i></a>
+                    </div>
+                    <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+                        <div th:if="${#lists.isEmpty(profissionaisDestaque)}" class="text-muted text-sm">Nenhum profissional disponível.</div>
+                        <div th:each="prof : ${profissionaisDestaque}" class="prof-card">
+                            <div class="prof-avatar" th:text="${#strings.substring(prof.usuario.nome,0,2).toUpperCase()}">AB</div>
+                            <div class="prof-info">
+                                <div class="prof-name" th:text="${prof.usuario.nome}">Nome</div>
+                                <div class="prof-cat" th:text="${prof.categoria?.icone + ' ' + prof.categoria?.nome}">Categoria</div>
+                                <div class="prof-meta">
+                                    <span class="stars"><i class="bi bi-star-fill"></i></span>
+                                    <span th:text="${prof.avaliacaoMedia}">4.9</span>
+                                    <span th:text="'(' + ${prof.quantidadeAvaliacoes} + ' avaliações)'"></span>
+                                    <span class="text-primary fw-600" th:text="'R$ ' + ${prof.precoBase} + '/h'"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <span th:if="${prof.disponivel}" class="badge badge-green">Disponível</span>
+                                <span th:unless="${prof.disponivel}" class="badge badge-gray">Ocupado</span>
+                                <div style="margin-top:8px">
+                                    <a th:href="@{/profissional/publico/{id}(id=${prof.id})}" class="btn btn-outline btn-sm">Ver Perfil</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chamados Recentes -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Serviços Recentes</span>
+                        <a th:href="@{/cliente/chamados}" class="btn btn-ghost btn-sm">Ver todos <i class="bi bi-arrow-right"></i></a>
+                    </div>
+                    <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+                        <div th:if="${#lists.isEmpty(chamadosRecentes)}" class="text-muted text-sm">
+                            Você ainda não tem chamados. <a th:href="@{/cliente/chamados}" class="text-primary">Abrir um chamado</a>
+                        </div>
+                        <div th:each="c : ${chamadosRecentes}"
+                             class="chamado-card"
+                             th:classappend="'prioridade-' + ${c.prioridade.name().toLowerCase()}">
+                            <div class="flex-between">
+                                <span class="chamado-title" th:text="${c.titulo}">Título</span>
+                                <span th:if="${c.status.name() == 'CONCLUIDO'}"  class="badge badge-green">Concluído</span>
+                                <span th:if="${c.status.name() == 'EM_ANDAMENTO'}" class="badge badge-blue">Em andamento</span>
+                                <span th:if="${c.status.name() == 'ABERTO'}"    class="badge badge-amber">Aberto</span>
+                            </div>
+                            <div class="chamado-meta">
+                                <span th:text="${c.profissional != null ? c.profissional.usuario.nome : 'Sem profissional'}"></span>
+                                • <span th:text="${#temporals.format(c.dataAbertura,'dd/MM/yyyy')}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>Dashboard | ServiceMatch</title>
+<link rel="stylesheet" th:href="@{/css/style.css}"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/></head>
+<body>
+<div class="app-layout">
+<div th:replace="~{fragments/layout :: sidebar('Profissional')}"></div>
+<div class="main-content" id="mainContent">
+<div class="topbar"><span class="topbar-title">Dashboard</span>
+  <a th:href="@{/profissional/chamados}" class="btn btn-primary btn-sm"><i class="bi bi-clipboard-check"></i> Ver Chamados</a>
+</div>
+<div class="page-content">
+<div th:replace="~{fragments/layout :: alerts}"></div>
+<div class="page-header">
+  <h1 th:text="'Olá, ' + ${profissional.usuario.nome.split(' ')[0]} + '!'">Olá!</h1>
+  <p>Gerencie seus chamados e acompanhe seu desempenho</p>
+</div>
+<div class="card mb-3" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#bfdbfe">
+  <div class="card-body" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div class="flex-center gap-2">
+      <i class="bi bi-coin" style="font-size:2rem;color:var(--primary)"></i>
+      <div>
+        <div style="font-size:1.6rem;font-weight:800;color:var(--primary)" th:text="${profissional.tokens}">0</div>
+        <div class="text-muted text-sm">Tokens disponíveis</div>
+      </div>
+    </div>
+    <a th:href="@{/profissional/tokens}" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> Comprar Tokens</a>
+  </div>
+</div>
+<div class="stat-cards">
+  <div class="stat-card"><div class="stat-icon blue"><i class="bi bi-clipboard-check-fill"></i></div>
+    <div class="stat-info"><div class="stat-value" th:text="${chamadosAtivos.size()}">0</div><div class="stat-label">Chamados Ativos</div></div></div>
+  <div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-info"><div class="stat-value" th:text="${totalConcluidos}">0</div><div class="stat-label">Concluídos</div></div></div>
+  <div class="stat-card"><div class="stat-icon amber"><i class="bi bi-star-fill"></i></div>
+    <div class="stat-info"><div class="stat-value" th:text="${profissional.avaliacaoMedia}">0</div><div class="stat-label">Nota Média</div></div></div>
+  <div class="stat-card"><div class="stat-icon cyan"><i class="bi bi-people-fill"></i></div>
+    <div class="stat-info"><div class="stat-value" th:text="${profissional.quantidadeAvaliacoes}">0</div><div class="stat-label">Avaliações</div></div></div>
+</div>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Chamados Ativos</span>
+      <a th:href="@{/profissional/chamados}" class="btn btn-ghost btn-sm">Ver todos <i class="bi bi-arrow-right"></i></a></div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+      <div th:if="${#lists.isEmpty(chamadosAtivos)}" class="text-muted text-sm">Nenhum chamado ativo.</div>
+      <div th:each="c : ${chamadosAtivos}" class="chamado-card" th:classappend="'prioridade-' + ${c.prioridade.name().toLowerCase()}">
+        <div class="flex-between mb-1">
+          <span class="chamado-title" th:text="${c.titulo}">Título</span>
+          <span th:if="${c.prioridade.name()=='ALTA'}" class="badge badge-red">Alta</span>
+          <span th:if="${c.prioridade.name()=='MEDIA'}" class="badge badge-amber">Média</span>
+        </div>
+        <div class="chamado-meta"><i class="bi bi-person-fill"></i> <span th:text="${c.cliente.nome}"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">Avaliações Recentes</span>
+      <a th:href="@{/profissional/avaliacoes}" class="btn btn-ghost btn-sm">Ver todas <i class="bi bi-arrow-right"></i></a></div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+      <div th:if="${#lists.isEmpty(avaliacoesRecentes)}" class="text-muted text-sm">Nenhuma avaliação ainda.</div>
+      <div th:each="av : ${avaliacoesRecentes}" style="padding:12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm)">
+        <div class="flex-between mb-1">
+          <span class="fw-600 text-sm" th:text="${av.cliente.nome}">Cliente</span>
+          <span class="text-muted text-sm" th:text="${#temporals.format(av.dataAvaliacao,'dd/MM/yyyy')}"></span>
+        </div>
+        <div class="star-rating mb-1">
+          <i th:each="i : ${#numbers.sequence(1,5)}" class="bi" th:classappend="${i <= av.nota ? 'bi-star-fill filled' : 'bi-star'}"></i>
+        </div>
+        <p class="text-sm text-muted" th:text="${av.comentario}"></p>
+      </div>
+    </div>
+  </div>
+</div>
+</div></div></div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body></html>

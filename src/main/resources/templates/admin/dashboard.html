@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>Dashboard Admin | ServiceMatch</title>
+<link rel="stylesheet" th:href="@{/css/style.css}"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/></head>
+<body>
+<div class="app-layout">
+<div th:replace="~{fragments/layout :: sidebar('Admin')}"></div>
+<div class="main-content" id="mainContent">
+<div class="topbar"><span class="topbar-title">Dashboard Administrativo</span></div>
+<div class="page-content">
+<div class="page-header"><h1>Painel Administrativo</h1><p>Visão geral da plataforma</p></div>
+<div class="stat-cards">
+  <div class="stat-card"><div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
+    <div class="stat-info"><div class="stat-value" th:text="${totalClientes}">0</div><div class="stat-label">Clientes</div></div></div>
+  <div class="stat-card"><div class="stat-icon green"><i class="bi bi-person-badge-fill"></i></div>
+    <div class="stat-info"><div class="stat-value" th:text="${totalProfissionais}">0</div><div class="stat-label">Profissionais</div></div></div>
+  <div class="stat-card"><div class="stat-icon amber"><i class="bi bi-clipboard-fill"></i></div>
+    <div class="stat-info"><div class="stat-value" th:text="${totalChamados}">0</div><div class="stat-label">Total Chamados</div></div></div>
+  <div class="stat-card"><div class="stat-icon red"><i class="bi bi-exclamation-circle-fill"></i></div>
+    <div class="stat-info"><div class="stat-value" th:text="${chamadosAbertos}">0</div><div class="stat-label">Chamados Abertos</div></div></div>
+</div>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Chamados Recentes</span>
+      <a th:href="@{/admin/clientes}" class="btn btn-ghost btn-sm">Ver todos <i class="bi bi-arrow-right"></i></a></div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+      <div th:each="c : ${chamadosRecentes}" class="chamado-card" th:classappend="'prioridade-' + ${c.prioridade.name().toLowerCase()}">
+        <div class="flex-between"><span class="chamado-title" th:text="${c.titulo}"></span>
+          <span class="badge badge-amber">Aberto</span></div>
+        <div class="chamado-meta"><i class="bi bi-person-fill"></i> <span th:text="${c.cliente.nome}"></span></div>
+      </div>
+      <div th:if="${#lists.isEmpty(chamadosRecentes)}" class="text-muted text-sm">Nenhum chamado aberto.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">Profissionais Recentes</span>
+      <a th:href="@{/admin/profissionais}" class="btn btn-ghost btn-sm">Ver todos <i class="bi bi-arrow-right"></i></a></div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+      <div th:each="p : ${profissionaisRecentes}" class="prof-card">
+        <div class="prof-avatar" th:text="${#strings.substring(p.usuario.nome,0,2).toUpperCase()}">AB</div>
+        <div class="prof-info">
+          <div class="prof-name" th:text="${p.usuario.nome}">Nome</div>
+          <div class="prof-cat" th:text="${p.categoria?.nome}">Cat</div>
+        </div>
+        <span th:if="${p.verificado}" class="badge badge-blue btn-sm"><i class="bi bi-patch-check-fill"></i> Verificado</span>
+        <span th:unless="${p.verificado}" class="badge badge-gray btn-sm">Pendente</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div></div></div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body></html>

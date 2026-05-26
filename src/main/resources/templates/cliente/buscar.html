@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Buscar Profissionais | ServiceMatch</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout :: sidebar('Cliente')}"></div>
+    <div class="main-content" id="mainContent">
+        <div class="topbar"><span class="topbar-title">Buscar Profissionais</span></div>
+        <div class="page-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Filtros -->
+            <form th:action="@{/cliente/buscar}" method="get" class="filters-bar">
+                <div class="form-group" style="flex:2;min-width:180px">
+                    <label class="form-label">Buscar</label>
+                    <div style="position:relative">
+                        <i class="bi bi-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--gray-400)"></i>
+                        <input type="text" name="termo" class="form-control" placeholder="Nome, serviço…"
+                               th:value="${termo}" style="padding-left:32px"/>
+                    </div>
+                </div>
+                <div class="form-group" style="flex:1;min-width:150px">
+                    <label class="form-label">Categoria</label>
+                    <select name="categoriaId" class="form-control">
+                        <option value="">Todas</option>
+                        <option th:each="cat : ${categorias}" th:value="${cat.id}"
+                                th:text="${cat.icone + ' ' + cat.nome}"
+                                th:selected="${cat.id == categoriaId}"></option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1;min-width:140px">
+                    <label class="form-label">Cidade</label>
+                    <input type="text" name="cidade" class="form-control" placeholder="São Paulo" th:value="${cidade}"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Disponível</label>
+                    <select name="disponivel" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="true" th:selected="${disponivel == true}">Sim</option>
+                        <option value="false" th:selected="${disponivel == false}">Não</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-funnel-fill"></i> Filtrar</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">&nbsp;</label>
+                    <a th:href="@{/cliente/buscar}" class="btn btn-outline"><i class="bi bi-x"></i> Limpar</a>
+                </div>
+            </form>
+
+            <!-- Resultados -->
+            <div class="flex-between mb-2">
+                <span class="text-muted text-sm" th:text="${profissionais.size()} + ' profissional(is) encontrado(s)'"></span>
+            </div>
+
+            <div th:if="${#lists.isEmpty(profissionais)}" class="card">
+                <div class="card-body" style="text-align:center;padding:48px">
+                    <i class="bi bi-search" style="font-size:2.5rem;color:var(--gray-300)"></i>
+                    <p class="text-muted mt-2">Nenhum profissional encontrado com os filtros selecionados.</p>
+                    <a th:href="@{/cliente/buscar}" class="btn btn-outline mt-2">Limpar filtros</a>
+                </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:12px">
+                <div th:each="prof : ${profissionais}" class="prof-card" style="gap:16px">
+                    <div class="prof-avatar" style="width:60px;height:60px;font-size:1.2rem"
+                         th:text="${#strings.substring(prof.usuario.nome,0,2).toUpperCase()}">AB</div>
+                    <div class="prof-info" style="flex:1">
+                        <div class="flex-between">
+                            <div>
+                                <div class="prof-name" style="font-size:1rem" th:text="${prof.usuario.nome}">Nome</div>
+                                <div class="prof-cat" th:text="${prof.categoria?.icone + ' ' + prof.categoria?.nome}">Cat</div>
+                            </div>
+                            <div style="text-align:right">
+                                <span th:if="${prof.disponivel}" class="badge badge-green">Disponível</span>
+                                <span th:unless="${prof.disponivel}" class="badge badge-gray">Ocupado</span>
+                                <span th:if="${prof.verificado}" class="badge badge-blue" style="margin-left:4px"><i class="bi bi-patch-check-fill"></i> Verificado</span>
+                            </div>
+                        </div>
+                        <p th:if="${prof.descricao}" class="text-sm text-muted mt-1" style="max-width:600px"
+                           th:text="${#strings.abbreviate(prof.descricao, 120)}"></p>
+                        <div class="prof-meta mt-1">
+                            <span><i class="bi bi-star-fill" style="color:#f59e0b"></i> <span th:text="${prof.avaliacaoMedia}">4.9</span></span>
+                            <span th:text="'(' + ${prof.quantidadeAvaliacoes} + ' avaliações)'"></span>
+                            <span><i class="bi bi-geo-alt-fill"></i> <span th:text="${prof.cidade + (prof.estado != null ? ', ' + prof.estado : '')}">Cidade</span></span>
+                            <span class="text-primary fw-600" th:text="'R$ ' + ${prof.precoBase} + '/hora'"></span>
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+                        <a th:href="@{/profissional/publico/{id}(id=${prof.id})}" class="btn btn-primary btn-sm">Ver Perfil</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Avaliações | ServiceMatch</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+</head>
+<body>
+<div class="app-layout">
+<div th:replace="~{fragments/layout :: sidebar('Admin')}"></div>
+<div class="main-content" id="mainContent">
+<div class="topbar"><span class="topbar-title">Moderar Avaliações</span></div>
+<div class="page-content">
+<div th:replace="~{fragments/layout :: alerts}"></div>
+<div class="card">
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>Cliente</th><th>Profissional</th><th>Nota</th><th>Comentário</th><th>Data</th><th>Ações</th></tr></thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(avaliacoes)}">
+                    <td colspan="6" class="text-muted text-sm" style="text-align:center;padding:24px">Nenhuma avaliação.</td>
+                </tr>
+                <tr th:each="av : ${avaliacoes}">
+                    <td class="fw-600" th:text="${av.cliente.nome}">Nome</td>
+                    <td th:text="${av.profissional.usuario.nome}">Nome</td>
+                    <td>
+                        <div style="display:flex;gap:2px">
+                            <i th:each="i : ${#numbers.sequence(1,5)}" class="bi"
+                               th:classappend="${i <= av.nota ? 'bi-star-fill' : 'bi-star'}"
+                               th:style="${i <= av.nota ? 'color:#f59e0b;font-size:.85rem' : 'color:#d1d5db;font-size:.85rem'}"></i>
+                        </div>
+                    </td>
+                    <td class="text-sm text-muted" th:text="${av.comentario != null ? #strings.abbreviate(av.comentario,60) : '-'}">-</td>
+                    <td th:text="${#temporals.format(av.dataAvaliacao,'dd/MM/yyyy')}">-</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm"
+                                th:data-id="${av.id}"
+                                onclick="confirmarExclusao(this.dataset.id)">
+                            <i class="bi bi-trash-fill"></i> Excluir
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div></div></div>
+
+<!-- Modal confirmar exclusão -->
+<div class="modal-overlay" id="modalExcluir">
+    <div class="modal" style="max-width:400px">
+        <div class="modal-header">
+            <h3 class="modal-title"><i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i> Confirmar Exclusão</h3>
+        </div>
+        <p class="text-sm text-muted" style="margin:12px 0 20px">Tem certeza que deseja excluir esta avaliação? Esta ação não pode ser desfeita.</p>
+        <form id="formExcluir" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('modalExcluir')">Cancelar</button>
+                <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i> Excluir</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script th:src="@{/js/admin-avaliacoes.js}"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Avaliações | ServiceMatch</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+</head>
+<body>
+<div class="app-layout">
+<div th:replace="~{fragments/layout :: sidebar('Cliente')}"></div>
+<div class="main-content" id="mainContent">
+<div class="topbar"><span class="topbar-title">Avaliações</span></div>
+<div class="page-content">
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div th:if="${!#lists.isEmpty(chamadosSemAvaliacao)}" class="card mb-3" style="border-color:#bfdbfe;background:#eff6ff">
+  <div class="card-header"><span class="card-title"><i class="bi bi-star" style="color:var(--warning)"></i> Chamados aguardando avaliação</span></div>
+  <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+    <div th:each="c : ${chamadosSemAvaliacao}" style="display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);background:#fff">
+      <div>
+        <div class="fw-600 text-sm" th:text="${c.titulo}">Título</div>
+        <div class="text-muted text-sm" th:text="${c.profissional?.usuario?.nome + ' • ' + (c.dataConclusao != null ? #temporals.format(c.dataConclusao,'dd/MM/yyyy') : 'Concluído')}"></div>
+      </div>
+      <button class="btn btn-primary btn-sm"
+              th:data-id="${c.id}"
+              th:data-titulo="${c.titulo}"
+              onclick="openAval(this.dataset.id, this.dataset.titulo)">
+        <i class="bi bi-star-fill"></i> Avaliar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Histórico de Avaliações</span></div>
+  <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+    <div th:if="${#lists.isEmpty(avaliacoes)}" class="text-muted text-sm">Você ainda não fez avaliações.</div>
+    <div th:each="av : ${avaliacoes}" style="padding:14px;border:1px solid var(--gray-200);border-radius:var(--radius)">
+      <div class="flex-between mb-1">
+        <span class="fw-600" th:text="${av.profissional.usuario.nome}">Nome</span>
+        <span class="text-muted text-sm" th:text="${#temporals.format(av.dataAvaliacao,'dd/MM/yyyy')}"></span>
+      </div>
+      <div class="star-rating mb-1">
+        <i th:each="i : ${#numbers.sequence(1,5)}" class="bi" th:classappend="${i <= av.nota ? 'bi-star-fill filled' : 'bi-star'}"></i>
+      </div>
+      <p class="text-sm text-muted" th:text="${av.comentario}"></p>
+    </div>
+  </div>
+</div>
+</div></div></div>
+
+<!-- Modal avaliar -->
+<div class="modal-overlay" id="modalAval">
+  <div class="modal">
+    <div class="modal-header flex-between">
+      <h3 class="modal-title">Avaliar Serviço</h3>
+      <button onclick="closeModal('modalAval')" class="btn btn-outline btn-sm"><i class="bi bi-x"></i></button>
+    </div>
+    <form th:action="@{/cliente/avaliacoes/nova}" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <input type="hidden" name="chamadoId" id="avalChamadoId"/>
+      <div class="form-group">
+        <label class="form-label">Serviço</label>
+        <input type="text" id="avalTitulo" class="form-control" readonly/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nota *</label>
+        <div style="display:flex;gap:8px">
+          <th:block th:each="n : ${#numbers.sequence(1,5)}">
+            <label style="cursor:pointer;font-size:1.5rem">
+              <input type="radio" name="nota" th:value="${n}" style="display:none" required/>
+              <i class="bi bi-star" style="color:#d1d5db" th:id="'star'+${n}" onclick="setStars(this)"></i>
+            </label>
+          </th:block>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Comentário (opcional)</label>
+        <textarea name="comentario" class="form-control" rows="3" placeholder="Como foi o serviço?"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modalAval')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-send-fill"></i> Enviar Avaliação</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script th:src="@{/js/avaliacoes.js}"></script>
+</body>
+</html>
