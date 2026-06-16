@@ -62,7 +62,7 @@ input, select, textarea { font-family: inherit; }
 
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .main-content {
@@ -70,13 +70,20 @@ input, select, textarea { font-family: inherit; }
   margin-left: var(--sidebar-width);
   transition: margin-left var(--transition);
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .main-content.collapsed { margin-left: var(--sidebar-collapsed); }
 
 .page-content {
   padding: 24px;
-  max-width: 1400px;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── Sidebar ──────────────────────────────────────────── */
@@ -151,6 +158,13 @@ input, select, textarea { font-family: inherit; }
   font-weight: 700;
   color: #fff;
   flex-shrink: 0;
+  overflow: hidden;
+}
+.sidebar-foto {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 .user-info { min-width: 0; }
@@ -223,6 +237,16 @@ input, select, textarea { font-family: inherit; }
 
 /* ── Cards ────────────────────────────────────────────── */
 
+/* Card que cresce para preencher o espaço restante da página */
+.card-fill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.card-fill .table-wrapper { flex: 1; overflow-y: auto; }
+.card-fill .card-body      { flex: 1; overflow-y: auto; }
+
 .card {
   background: #fff;
   border-radius: var(--radius);
@@ -284,6 +308,11 @@ input, select, textarea { font-family: inherit; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+/* Grid que cresce para preencher o espaço restante */
+.grid-fill { flex: 1; min-height: 0; align-items: stretch; }
+.grid-fill > .card { display: flex; flex-direction: column; min-height: 0; }
+.grid-fill > .card .card-body { flex: 1; overflow-y: auto; min-height: 0; }
 .flex-between { display: flex; align-items: center; justify-content: space-between; }
 .flex-center  { display: flex; align-items: center; }
 .gap-2 { gap: 8px; }
@@ -663,3 +692,102 @@ tbody tr:hover td { background: var(--gray-50); }
 .d-flex { display: flex; }
 .align-center { align-items: center; }
 .w-100 { width: 100%; }
+
+/* ═══════════════════════════════════════════════════════
+   Dark Mode
+   ═══════════════════════════════════════════════════════ */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  /* Remap grays: luz → escuro */
+  --gray-50:  #141a27;
+  --gray-100: #1a2033;
+  --gray-200: #24304a;
+  --gray-300: #2e3d5c;
+  --gray-400: #4d6080;
+  --gray-500: #708098;
+  --gray-600: #90a0b8;
+  --gray-700: #b8c8d8;
+  --gray-800: #d8e4f0;
+  --gray-900: #f0f5fb;
+  /* Lights viram tons escuros */
+  --primary-light:  #1a2f5a;
+  --success-light:  #0d2e1a;
+  --warning-light:  #2e1c00;
+  --danger-light:   #2e0e0e;
+  --info-light:     #0a1e2e;
+}
+
+[data-theme="dark"] body { background: #0f1623; }
+
+/* ─ Card / Surface ─ */
+[data-theme="dark"] .card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .prof-card,
+[data-theme="dark"] .chamado-card,
+[data-theme="dark"] .cat-item,
+[data-theme="dark"] .token-card,
+[data-theme="dark"] .auth-card,
+[data-theme="dark"] .modal,
+[data-theme="dark"] .topbar,
+[data-theme="dark"] .filters-bar,
+[data-theme="dark"] .stat-plain { background: #1a2033; }
+
+/* ─ Inputs ─ */
+[data-theme="dark"] .form-control {
+  background: #141a27;
+  color: var(--gray-800);
+  border-color: var(--gray-300);
+}
+[data-theme="dark"] .form-control::placeholder { color: var(--gray-400); }
+[data-theme="dark"] .form-control:focus { box-shadow: 0 0 0 3px rgba(59,130,246,.2); }
+
+/* ─ Botões ─ */
+[data-theme="dark"] .btn-outline {
+  color: var(--gray-700);
+  border-color: var(--gray-300);
+}
+[data-theme="dark"] .btn-outline:hover { background: var(--gray-200); }
+[data-theme="dark"] .btn-ghost:hover   { background: var(--primary-light); }
+
+/* ─ Dropdown menus ─ */
+[data-theme="dark"] .action-menu {
+  background: #1a2033;
+  border-color: var(--gray-300);
+}
+[data-theme="dark"] .action-menu-item { color: var(--gray-700); }
+[data-theme="dark"] .action-menu-item:hover { background: var(--gray-100); color: var(--gray-900); }
+
+/* ─ Tabela ─ */
+[data-theme="dark"] thead th { background: #141a27; }
+
+/* ─ Role tabs ─ */
+[data-theme="dark"] .role-tab.active { background: #1a2033; color: var(--gray-800); }
+
+/* ─ Error page ─ */
+[data-theme="dark"] .error-card { background: #1a2033; }
+
+/* ─ Sidebar (fica mais escuro no dark mode) ─ */
+[data-theme="dark"] .sidebar { background: #0a0f1c; }
+
+/* ─ Botão de tema no sidebar ─ */
+.theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  color: var(--gray-400);
+  border-radius: var(--radius-sm);
+  font-size: .875rem;
+  font-weight: 500;
+  transition: all var(--transition);
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 2px;
+}
+.theme-btn:hover { background: var(--sidebar-hover); color: #f59e0b; }
+.theme-btn i { font-size: 1.1rem; flex-shrink: 0; }
+.sidebar.collapsed .theme-btn span { display: none; }

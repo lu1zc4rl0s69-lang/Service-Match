@@ -66,7 +66,7 @@
         <select name="categoriaId" class="form-control" onchange="this.form.submit()">
             <option value="">Todas as categorias</option>
             <option th:each="cat : ${categorias}" th:value="${cat.id}"
-                    th:text="${cat.icone + ' ' + cat.nome}"
+                    th:text="${cat.nome}"
                     th:selected="${cat.id == categoriaId}"></option>
         </select>
     </div>
@@ -101,7 +101,10 @@
 
                 <!-- Localização visível -->
                 <div class="chamado-meta mb-1">
-                    <span th:if="${c.categoria != null}" th:text="${c.categoria.icone + ' ' + c.categoria.nome}"></span>
+                    <span th:if="${c.categoria != null}">
+                      <i class="bi" th:classappend="${c.categoria.icone}"></i>
+                      <span th:text="${c.categoria.nome}"></span>
+                    </span>
                     <span th:if="${c.cidade != null}"><i class="bi bi-geo-alt"></i> <span th:text="${c.cidade}"></span></span>
                     <span><i class="bi bi-calendar3"></i> <span th:text="${#temporals.format(c.dataAbertura,'dd/MM/yyyy')}"></span></span>
                 </div>
@@ -162,9 +165,12 @@
                     <div class="dado-item" th:if="${c.cliente.telefone != null}">
                         <i class="bi bi-telephone-fill"></i>
                         <span class="dado-label">Telefone:</span>
-                        <a th:href="'tel:' + ${c.cliente.telefone}"
-                           th:text="${c.cliente.telefone}"
-                           style="color:var(--success);font-weight:600"></a>
+                        <span th:text="${c.cliente.telefone}" style="font-weight:600"></span>
+                        <a th:href="'https://wa.me/55' + ${#strings.replace(#strings.replace(#strings.replace(#strings.replace(c.cliente.telefone,' ',''),'(',''),')',''),'-','')}"
+                           target="_blank"
+                           style="display:inline-flex;align-items:center;gap:4px;background:#25D366;color:#fff;border-radius:20px;padding:3px 10px;font-size:.8rem;font-weight:600;text-decoration:none;margin-left:6px">
+                            <i class="bi bi-whatsapp"></i> WhatsApp
+                        </a>
                     </div>
                     <div class="dado-item" th:if="${c.endereco != null}">
                         <i class="bi bi-geo-alt-fill"></i>

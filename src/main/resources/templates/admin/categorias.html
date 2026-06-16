@@ -1,75 +1,472 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Categorias | ServiceMatch</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<meta charset="UTF-8"/>
+<title>Categorias | ServiceMatch</title>
+<link rel="stylesheet" th:href="@{/css/style.css}"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<style>
+  /* Stats */
+  .stats-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px; }
+  @media(max-width:900px){ .stats-3{ grid-template-columns:1fr 1fr; } }
+  @media(max-width:600px){ .stats-3{ grid-template-columns:1fr; } }
+
+  .stat-plain { background:#fff; border:1px solid var(--gray-200); border-radius:var(--radius); padding:24px 28px; }
+  .stat-plain-head { display:flex; align-items:center; gap:8px; font-size:.82rem; font-weight:600; color:var(--gray-500); margin-bottom:10px; }
+  .stat-plain-head.green { color:#16a34a; }
+  .stat-plain-head.blue  { color:#2563eb; }
+  .stat-plain-val { font-size:2.2rem; font-weight:800; color:var(--gray-900); line-height:1; }
+  .stat-plain-val.green  { color:#16a34a; }
+  .stat-plain-val.blue   { color:#2563eb; }
+  .stat-plain-lbl { font-size:.82rem; color:var(--gray-500); margin-top:6px; }
+
+  /* Search row */
+  .cat-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+  .cat-search   { flex:1; display:flex; align-items:center; gap:8px;
+                  background:#fff; border:1px solid var(--gray-200); border-radius:8px;
+                  padding:0 14px; height:40px; }
+  .cat-search i { color:var(--gray-400); font-size:1rem; }
+  .cat-search input { border:none; outline:none; font-size:.88rem; flex:1; background:transparent; }
+
+  /* Category grid */
+  .cat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  @media(max-width:1300px){ .cat-grid{ grid-template-columns:repeat(3,1fr); } }
+  @media(max-width:900px) { .cat-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:560px) { .cat-grid{ grid-template-columns:1fr; } }
+
+  /* Card individual */
+  .cat-card { background:#fff; border:1px solid var(--gray-200); border-radius:12px;
+              padding:20px; display:flex; flex-direction:column; gap:12px;
+              transition:box-shadow .15s; }
+  .cat-card:hover { box-shadow:0 4px 18px rgba(0,0,0,.08); }
+  .cat-card.inactive { opacity:.65; }
+
+  .cat-card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+
+  .cat-ico-wrap { width:46px; height:46px; border-radius:12px; background:#eff6ff;
+                  display:flex; align-items:center; justify-content:center;
+                  font-size:1.35rem; color:#2563eb; flex-shrink:0; }
+
+  .cat-card-name { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .cat-card-name .name { font-weight:700; font-size:.97rem; color:var(--gray-900); }
+  .badge-inativa { background:#f3f4f6; color:#6b7280; border:1px solid #e5e7eb;
+                   font-size:.7rem; font-weight:600; border-radius:6px; padding:2px 7px;
+                   text-transform:uppercase; letter-spacing:.04em; }
+
+  .cat-card-desc { font-size:.82rem; color:var(--gray-500); line-height:1.5;
+                   flex:1; margin:0; min-height:36px; }
+
+  .cat-card-foot { display:flex; gap:0; border-top:1px solid var(--gray-100);
+                   padding-top:12px; margin-top:auto; }
+  .cat-foot-stat { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .cat-foot-stat + .cat-foot-stat { border-left:1px solid var(--gray-100); }
+  .foot-val { font-size:1.15rem; font-weight:800; color:var(--gray-900); }
+  .foot-lbl { font-size:.72rem; color:var(--gray-500); font-weight:500; }
+
+  /* Three-dot menu */
+  .action-wrap { position:relative; }
+  .action-btn  { background:none; border:none; cursor:pointer; width:32px; height:32px;
+                 border-radius:8px; display:flex; align-items:center; justify-content:center;
+                 color:var(--gray-400); font-size:1.1rem; }
+  .action-btn:hover { background:var(--gray-100); color:var(--gray-700); }
+  .action-menu { position:absolute; right:0; top:34px; z-index:100;
+                 background:#fff; border:1px solid var(--gray-200); border-radius:10px;
+                 box-shadow:0 8px 24px rgba(0,0,0,.12); min-width:160px;
+                 display:none; flex-direction:column; overflow:hidden; }
+  .action-wrap.open .action-menu { display:flex; }
+  .action-menu-item { display:flex; align-items:center; gap:9px; padding:10px 14px;
+                      font-size:.85rem; color:var(--gray-700); font-weight:500;
+                      cursor:pointer; background:none; border:none; width:100%;
+                      text-align:left; text-decoration:none; }
+  .action-menu-item:hover { background:var(--gray-50); }
+  .action-menu-item.danger { color:#dc2626; }
+  .action-menu-item.danger:hover { background:#fef2f2; }
+
+  /* Empty state */
+  .cat-empty { grid-column:1/-1; padding:60px 20px; text-align:center;
+               color:var(--gray-400); display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .cat-empty i { font-size:2.5rem; }
+
+  /* Icon picker */
+  .icon-picker { display:flex; flex-direction:column; gap:8px; }
+  .icon-picker-preview { display:flex; align-items:center; gap:12px; padding:12px 14px;
+                          background:#f8fafc; border:1px solid var(--gray-200); border-radius:8px; }
+  .icon-preview-box { width:42px; height:42px; border-radius:10px; background:#eff6ff; color:#2563eb;
+                       display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+  .icon-preview-lbl { font-size:.8rem; color:var(--gray-500); }
+  .icon-preview-cls  { font-family:monospace; font-size:.82rem; color:var(--gray-700); font-weight:600; }
+  .icon-search { border:1px solid var(--gray-200); border-radius:8px; padding:7px 12px;
+                 font-size:.85rem; outline:none; width:100%; box-sizing:border-box; }
+  .icon-search:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+  .icon-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr));
+               gap:4px; max-height:210px; overflow-y:auto; padding:2px; }
+  .icon-opt { display:flex; flex-direction:column; align-items:center; gap:3px;
+              padding:8px 4px; border:2px solid transparent; border-radius:8px;
+              cursor:pointer; background:none; font-size:.63rem; color:var(--gray-500); transition:all .12s; }
+  .icon-opt i { font-size:1.25rem; color:var(--gray-600); }
+  .icon-opt:hover { background:#eff6ff; border-color:#bfdbfe; }
+  .icon-opt:hover i { color:#2563eb; }
+  .icon-opt.sel { background:#eff6ff; border-color:#2563eb; }
+  .icon-opt.sel i { color:#2563eb; }
+  .icon-opt.hidden { display:none; }
+
+  [data-theme="dark"] .cat-card { background: #1a2033; border-color: var(--gray-300); }
+  [data-theme="dark"] .cat-search { background: #1a2033; border-color: var(--gray-300); }
+  [data-theme="dark"] .cat-search input { color: var(--gray-800); }
+  [data-theme="dark"] .cat-card-name .name,
+  [data-theme="dark"] .foot-val { color: var(--gray-900); }
+  [data-theme="dark"] .badge-inativa { background: var(--gray-200); color: var(--gray-600); border-color: var(--gray-300); }
+  [data-theme="dark"] .action-menu-item.danger:hover { background: var(--danger-light, #2e0e0e); }
+  [data-theme="dark"] .icon-picker-preview { background: var(--gray-200); }
+</style>
 </head>
 <body>
 <div class="app-layout">
 <div th:replace="~{fragments/layout :: sidebar('Admin')}"></div>
 <div class="main-content" id="mainContent">
 <div class="topbar">
-    <span class="topbar-title">Gerenciar Categorias</span>
-    <button class="btn btn-primary btn-sm" onclick="openModal('modalNovaCategoria')">
-        <i class="bi bi-plus-lg"></i> Nova Categoria
-    </button>
+  <span class="topbar-title">Categorias</span>
+  <button class="btn btn-primary btn-sm" onclick="openModal('modalNovaCategoria')">
+    <i class="bi bi-plus-lg"></i> Nova Categoria
+  </button>
 </div>
 <div class="page-content">
 <div th:replace="~{fragments/layout :: alerts}"></div>
-<div class="card">
-    <div class="table-wrapper">
-        <table>
-            <thead><tr><th>Ícone</th><th>Nome</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody>
-                <tr th:each="cat : ${categorias}">
-                    <td style="font-size:1.4rem" th:text="${cat.icone}">⚡</td>
-                    <td class="fw-600" th:text="${cat.nome}">Nome</td>
-                    <td>
-                        <span th:if="${cat.ativa}" class="badge badge-green">Ativa</span>
-                        <span th:unless="${cat.ativa}" class="badge badge-gray">Inativa</span>
-                    </td>
-                    <td>
-                        <form th:action="@{/admin/categorias/{id}/toggle(id=${cat.id})}" method="post" style="display:inline">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button type="submit" th:class="${cat.ativa ? 'btn btn-outline btn-sm' : 'btn btn-success btn-sm'}">
-                                <span th:text="${cat.ativa ? 'Desativar' : 'Ativar'}"></span>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+
+<div class="page-header" style="margin-bottom:16px">
+  <div>
+    <h1>Categorias de Serviço</h1>
+    <p>Gerencie as categorias disponíveis na plataforma</p>
+  </div>
 </div>
-</div></div></div>
+
+<!-- Stats -->
+<div class="stats-3">
+  <div class="stat-plain">
+    <div class="stat-plain-head"><i class="bi bi-grid-3x3-gap-fill"></i> Total de Categorias</div>
+    <div class="stat-plain-val" th:text="${totalCategorias}">0</div>
+    <div class="stat-plain-lbl">categorias cadastradas</div>
+  </div>
+  <div class="stat-plain">
+    <div class="stat-plain-head green"><i class="bi bi-check-circle-fill"></i> Categorias Ativas</div>
+    <div class="stat-plain-val green" th:text="${totalAtivas}">0</div>
+    <div class="stat-plain-lbl">disponíveis na plataforma</div>
+  </div>
+  <div class="stat-plain">
+    <div class="stat-plain-head blue"><i class="bi bi-people-fill"></i> Profissionais Cadastrados</div>
+    <div class="stat-plain-val blue" th:text="${totalProfissionaisCadastrados}">0</div>
+    <div class="stat-plain-lbl">profissionais com categoria</div>
+  </div>
+</div>
+
+<!-- Toolbar -->
+<div class="cat-toolbar">
+  <form method="get" th:action="@{/admin/categorias}" class="cat-search" style="margin:0">
+    <i class="bi bi-search"></i>
+    <input type="text" name="termo" th:value="${termo}" placeholder="Pesquisar categoria..."/>
+  </form>
+</div>
+
+<!-- Grid -->
+<div class="cat-grid">
+
+  <div th:if="${#lists.isEmpty(categorias)}" class="cat-empty">
+    <i class="bi bi-grid-3x3-gap"></i>
+    <span>Nenhuma categoria encontrada.</span>
+  </div>
+
+  <div th:each="cat,stat : ${categorias}"
+       class="cat-card"
+       th:classappend="${!cat.ativa ? ' inactive' : ''}">
+
+    <!-- Head: icon + three-dot -->
+    <div class="cat-card-head">
+      <div class="cat-ico-wrap">
+        <i class="bi" th:classappend="${cat.icone}"></i>
+      </div>
+      <div class="action-wrap" th:id="'aw-' + ${cat.id}">
+        <button class="action-btn" type="button"
+                th:onclick="'toggleMenu(\'aw-' + ${cat.id} + '\')'">
+          <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <div class="action-menu">
+          <!-- Editar -->
+          <button type="button" class="action-menu-item"
+                  th:onclick="'openEditCat(this)'"
+                  th:data-id="${cat.id}"
+                  th:data-nome="${cat.nome}"
+                  th:data-icone="${cat.icone}"
+                  th:data-descricao="${cat.descricao}">
+            <i class="bi bi-pencil-fill"></i> Editar
+          </button>
+          <!-- Ativar / Desativar -->
+          <form th:action="@{/admin/categorias/{id}/toggle(id=${cat.id})}" method="post" style="margin:0">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="action-menu-item">
+              <i th:class="${cat.ativa ? 'bi bi-pause-circle' : 'bi bi-play-circle'}"></i>
+              <span th:text="${cat.ativa ? 'Desativar' : 'Ativar'}">Toggle</span>
+            </button>
+          </form>
+          <!-- Excluir -->
+          <form th:action="@{/admin/categorias/{id}/excluir(id=${cat.id})}" method="post" style="margin:0"
+                onsubmit="return confirm('Excluir esta categoria? Os profissionais e chamados perderão o vínculo.')">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="action-menu-item danger">
+              <i class="bi bi-trash3-fill"></i> Excluir
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Name + badge -->
+    <div class="cat-card-name">
+      <span class="name" th:text="${cat.nome}">Nome</span>
+      <span th:unless="${cat.ativa}" class="badge-inativa">Inativa</span>
+    </div>
+
+    <!-- Description -->
+    <p class="cat-card-desc"
+       th:text="${cat.descricao != null ? cat.descricao : 'Sem descrição cadastrada.'}">Descrição</p>
+
+    <!-- Footer stats -->
+    <div class="cat-card-foot">
+      <div class="cat-foot-stat">
+        <span class="foot-val" th:text="${profissionaisPorCategoria.get(cat.id) ?: 0}">0</span>
+        <span class="foot-lbl"><i class="bi bi-person-fill"></i> Profissionais</span>
+      </div>
+      <div class="cat-foot-stat">
+        <span class="foot-val" th:text="${chamadosPorCategoriaMap.get(cat.id) ?: 0}">0</span>
+        <span class="foot-lbl"><i class="bi bi-briefcase-fill"></i> Serviços</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+</div>
+</div>
 
 <!-- Modal Nova Categoria -->
 <div class="modal-overlay" id="modalNovaCategoria">
-    <div class="modal">
-        <div class="modal-header flex-between">
-            <h3 class="modal-title">Nova Categoria</h3>
-            <button onclick="closeModal('modalNovaCategoria')" class="btn btn-outline btn-sm"><i class="bi bi-x"></i></button>
-        </div>
-        <form th:action="@{/admin/categorias/nova}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <div class="form-group">
-                <label class="form-label">Nome *</label>
-                <input type="text" name="nome" class="form-control" required placeholder="Ex: Eletricista"/>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Ícone (emoji)</label>
-                <input type="text" name="icone" class="form-control" placeholder="⚡" maxlength="4"/>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline" onclick="closeModal('modalNovaCategoria')">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Salvar</button>
-            </div>
-        </form>
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header flex-between">
+      <h3 class="modal-title"><i class="bi bi-grid-1x2-fill"></i> Nova Categoria</h3>
+      <button onclick="closeModal('modalNovaCategoria')" class="btn btn-outline btn-sm"><i class="bi bi-x"></i></button>
     </div>
+    <form th:action="@{/admin/categorias/nova}" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <div class="form-group">
+        <label class="form-label">Nome *</label>
+        <input type="text" name="nome" class="form-control" required placeholder="Ex: Eletricista"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ícone</label>
+        <div class="icon-picker">
+          <div class="icon-picker-preview">
+            <div class="icon-preview-box"><i id="nova-prev-icon" class="bi bi-tools"></i></div>
+            <div>
+              <div class="icon-preview-lbl">Selecionado</div>
+              <div class="icon-preview-cls" id="nova-prev-cls">bi-tools</div>
+            </div>
+          </div>
+          <input type="text" class="icon-search" placeholder="Buscar ícone (ex: casa, carro, agua)..."
+                 oninput="filterIcons('nova', this.value)"/>
+          <div class="icon-grid" id="nova-icon-grid"></div>
+          <input type="hidden" name="icone" id="nova-icone-val" value="bi-tools"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea name="descricao" class="form-control" rows="2"
+                  placeholder="Breve descrição desta categoria..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modalNovaCategoria')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-save-fill"></i> Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Editar Categoria -->
+<div class="modal-overlay" id="modalEditarCategoria">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header flex-between">
+      <h3 class="modal-title"><i class="bi bi-pencil-fill"></i> Editar Categoria</h3>
+      <button onclick="closeModal('modalEditarCategoria')" class="btn btn-outline btn-sm"><i class="bi bi-x"></i></button>
+    </div>
+    <form id="formEditarCat" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <div class="form-group">
+        <label class="form-label">Nome *</label>
+        <input type="text" id="editCatNome" name="nome" class="form-control" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ícone</label>
+        <div class="icon-picker">
+          <div class="icon-picker-preview">
+            <div class="icon-preview-box"><i id="edit-prev-icon" class="bi bi-tools"></i></div>
+            <div>
+              <div class="icon-preview-lbl">Selecionado</div>
+              <div class="icon-preview-cls" id="edit-prev-cls">bi-tools</div>
+            </div>
+          </div>
+          <input type="text" class="icon-search" placeholder="Buscar ícone (ex: casa, carro, agua)..."
+                 oninput="filterIcons('edit', this.value)"/>
+          <div class="icon-grid" id="edit-icon-grid"></div>
+          <input type="hidden" name="icone" id="edit-icone-val" value="bi-tools"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea id="editCatDesc" name="descricao" class="form-control" rows="2"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modalEditarCategoria')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-save-fill"></i> Salvar</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+/* ── Ícones disponíveis para seleção ── */
+const SERVICE_ICONS = [
+  // Energia & Hidráulica
+  {cls:'bi-lightning-charge-fill', lbl:'Elétrica'},
+  {cls:'bi-outlet',                lbl:'Tomada'},
+  {cls:'bi-plug',                  lbl:'Plug'},
+  {cls:'bi-droplet-fill',          lbl:'Água'},
+  {cls:'bi-water',                 lbl:'Hidráulica'},
+  // Pintura & Arte
+  {cls:'bi-brush-fill',            lbl:'Pintura'},
+  {cls:'bi-paint-bucket',          lbl:'Tinta'},
+  {cls:'bi-palette2',              lbl:'Arte'},
+  // Construção & Marcenaria
+  {cls:'bi-bricks',                lbl:'Alvenaria'},
+  {cls:'bi-hammer',                lbl:'Marceneiro'},
+  {cls:'bi-tools',                 lbl:'Ferramentas'},
+  {cls:'bi-wrench',                lbl:'Manutenção'},
+  {cls:'bi-wrench-adjustable',     lbl:'Ajuste'},
+  // Jardinagem & Natureza
+  {cls:'bi-flower1',               lbl:'Flores'},
+  {cls:'bi-flower2',               lbl:'Jardim'},
+  {cls:'bi-tree-fill',             lbl:'Árvore'},
+  {cls:'bi-tree',                  lbl:'Natureza'},
+  // Veículos & Transporte
+  {cls:'bi-car-front-fill',        lbl:'Automóvel'},
+  {cls:'bi-bicycle',               lbl:'Bicicleta'},
+  {cls:'bi-truck',                 lbl:'Transporte'},
+  {cls:'bi-speedometer2',          lbl:'Mecânico'},
+  // TI & Tecnologia
+  {cls:'bi-cpu-fill',              lbl:'Informática'},
+  {cls:'bi-laptop-fill',           lbl:'Computador'},
+  {cls:'bi-phone-fill',            lbl:'Celular'},
+  {cls:'bi-wifi',                  lbl:'Redes'},
+  {cls:'bi-router',                lbl:'Roteador'},
+  {cls:'bi-tv-fill',               lbl:'Eletrônicos'},
+  {cls:'bi-camera-fill',           lbl:'Fotografia'},
+  // Saúde & Beleza
+  {cls:'bi-scissors',              lbl:'Cabeleireiro'},
+  {cls:'bi-person-fill',           lbl:'Pessoais'},
+  {cls:'bi-heart-pulse-fill',      lbl:'Saúde'},
+  {cls:'bi-bandaid',               lbl:'Cuidados'},
+  {cls:'bi-stars',                 lbl:'Beleza'},
+  // Residencial & Comercial
+  {cls:'bi-house-fill',            lbl:'Casa'},
+  {cls:'bi-house-door-fill',       lbl:'Residência'},
+  {cls:'bi-building',              lbl:'Comercial'},
+  {cls:'bi-buildings',             lbl:'Prédio'},
+  {cls:'bi-window',                lbl:'Vidraçaria'},
+  {cls:'bi-door-open',             lbl:'Portas'},
+  {cls:'bi-key-fill',              lbl:'Chaveiro'},
+  {cls:'bi-lock-fill',             lbl:'Segurança'},
+  {cls:'bi-shield-fill',           lbl:'Proteção'},
+  // Clima & Ambiente
+  {cls:'bi-fire',                  lbl:'Aquecimento'},
+  {cls:'bi-snow',                  lbl:'Climatização'},
+  {cls:'bi-wind',                  lbl:'Ventilação'},
+  {cls:'bi-thermometer-half',      lbl:'Temperatura'},
+  // Serviços Gerais
+  {cls:'bi-music-note-beamed',     lbl:'Música'},
+  {cls:'bi-book-fill',             lbl:'Educação'},
+  {cls:'bi-pencil-fill',           lbl:'Ensino'},
+  {cls:'bi-clipboard-check-fill',  lbl:'Consultoria'},
+  {cls:'bi-trash3-fill',           lbl:'Limpeza'},
+  {cls:'bi-geo-alt-fill',          lbl:'Entrega'},
+  {cls:'bi-box-seam',              lbl:'Embalagem'},
+  {cls:'bi-robot',                 lbl:'Automação'},
+  {cls:'bi-gear-fill',             lbl:'Engrenagem'},
+  {cls:'bi-grid-3x3-gap-fill',     lbl:'Geral'},
+];
+
+/* ── Renderiza grade de ícones ── */
+function buildIconGrid(prefix, selectedCls) {
+  const grid = document.getElementById(prefix + '-icon-grid');
+  grid.innerHTML = '';
+  SERVICE_ICONS.forEach(({cls, lbl}) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'icon-opt' + (cls === selectedCls ? ' sel' : '');
+    btn.dataset.cls = cls;
+    btn.dataset.lbl = lbl.toLowerCase();
+    btn.title = cls;
+    btn.innerHTML = `<i class="bi ${cls}"></i><span>${lbl}</span>`;
+    btn.addEventListener('click', () => selectIcon(prefix, cls));
+    grid.appendChild(btn);
+  });
+}
+
+function selectIcon(prefix, cls) {
+  document.getElementById(prefix + '-icone-val').value = cls;
+  document.getElementById(prefix + '-prev-icon').className = 'bi ' + cls;
+  document.getElementById(prefix + '-prev-cls').textContent = cls;
+  document.querySelectorAll('#' + prefix + '-icon-grid .icon-opt')
+    .forEach(b => b.classList.toggle('sel', b.dataset.cls === cls));
+}
+
+function filterIcons(prefix, term) {
+  const t = term.toLowerCase();
+  document.querySelectorAll('#' + prefix + '-icon-grid .icon-opt').forEach(btn => {
+    const match = btn.dataset.cls.includes(t) || btn.dataset.lbl.includes(t);
+    btn.classList.toggle('hidden', !match);
+  });
+}
+
+/* ── Inicializa grades ao carregar ── */
+buildIconGrid('nova', 'bi-tools');
+buildIconGrid('edit', 'bi-tools');
+
+/* ── Menus de ação ── */
+function toggleMenu(wrapperId) {
+  const wrap = document.getElementById(wrapperId);
+  const isOpen = wrap.classList.contains('open');
+  document.querySelectorAll('.action-wrap.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) wrap.classList.add('open');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.action-wrap')) {
+    document.querySelectorAll('.action-wrap.open').forEach(el => el.classList.remove('open'));
+  }
+});
+
+/* ── Abrir modal de edição ── */
+function openEditCat(btn) {
+  document.querySelectorAll('.action-wrap.open').forEach(el => el.classList.remove('open'));
+  const icone = btn.dataset.icone || 'bi-tools';
+  document.getElementById('editCatNome').value = btn.dataset.nome || '';
+  document.getElementById('editCatDesc').value = btn.dataset.descricao || '';
+  document.getElementById('formEditarCat').action = '/admin/categorias/' + btn.dataset.id + '/editar';
+  // Reset picker to current icon
+  buildIconGrid('edit', icone);
+  selectIcon('edit', icone);
+  // Clear search
+  document.querySelector('#modalEditarCategoria .icon-search').value = '';
+  openModal('modalEditarCategoria');
+}
+</script>
 </body>
 </html>

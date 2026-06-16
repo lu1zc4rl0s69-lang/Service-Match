@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{dd/MM/yyyy HH:mm:ss} %-5level [%t] %c - %msg%n"/>
+        </Console>
+        <RollingFile name="RollingFile"
+                     fileName="logs/servicematch.log"
+                     filePattern="logs/servicematch-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%d{dd/MM/yyyy HH:mm:ss} %-5level [%t] %c - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.servicematch" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Root level="WARN">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

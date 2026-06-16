@@ -81,7 +81,7 @@
                         <a th:each="cat : ${categorias}"
                            th:href="@{/cliente/buscar(categoriaId=${cat.id})}"
                            class="cat-item">
-                            <span class="cat-icon" th:text="${cat.icone}">⚡</span>
+                            <span class="cat-icon"><i class="bi" th:classappend="${cat.icone}"></i></span>
                             <span class="cat-name" th:text="${cat.nome}">Categoria</span>
                         </a>
                     </div>
@@ -101,7 +101,10 @@
                             <div class="prof-avatar" th:text="${#strings.substring(prof.usuario.nome,0,2).toUpperCase()}">AB</div>
                             <div class="prof-info">
                                 <div class="prof-name" th:text="${prof.usuario.nome}">Nome</div>
-                                <div class="prof-cat" th:text="${prof.categoria?.icone + ' ' + prof.categoria?.nome}">Categoria</div>
+                                <div class="prof-cat">
+                                  <i th:if="${prof.categoria != null}" class="bi" th:classappend="${prof.categoria.icone}"></i>
+                                  <span th:text="${prof.categoria?.nome}">Categoria</span>
+                                </div>
                                 <div class="prof-meta">
                                     <span class="stars"><i class="bi bi-star-fill"></i></span>
                                     <span th:text="${prof.avaliacaoMedia}">4.9</span>

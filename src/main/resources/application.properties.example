@@ -1,0 +1,60 @@
+# =============================================
+# ServiceMatch - Application Settings (EXEMPLO)
+# Copie este arquivo para application.properties
+# e preencha com suas credenciais locais.
+# NUNCA commite o application.properties real.
+# =============================================
+
+# Server
+server.port=8080
+spring.application.name=ServiceMatch
+
+# =============================================
+# Database
+# =============================================
+spring.datasource.url=jdbc:oracle:thin:@localhost:1521/XE
+spring.datasource.username=SEU_USUARIO_DB
+spring.datasource.password=SUA_SENHA_DB
+spring.datasource.driver-class-name=oracle.jdbc.OracleDriver
+
+# Connection pool
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.connection-timeout=30000
+
+# =============================================
+# JPA / Hibernate
+# =============================================
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.use_sql_comments=true
+spring.jpa.properties.hibernate.id.new_generator_mappings=true
+
+# =============================================
+# Thymeleaf
+# =============================================
+spring.thymeleaf.prefix=classpath:/templates/
+spring.thymeleaf.suffix=.html
+spring.thymeleaf.encoding=UTF-8
+spring.thymeleaf.cache=false
+
+# =============================================
+# Spring Security
+# =============================================
+spring.security.user.name=admin
+spring.security.user.password=SUA_SENHA_ADMIN
+
+# =============================================
+# File upload
+# =============================================
+spring.servlet.multipart.enabled=true
+spring.servlet.multipart.max-file-size=5MB
+spring.servlet.multipart.max-request-size=10MB
+
+# =============================================
+# Logging
+# =============================================
+logging.level.com.servicematch=DEBUG
+logging.level.org.springframework.security=DEBUG
+logging.level.org.hibernate.SQL=DEBUG
