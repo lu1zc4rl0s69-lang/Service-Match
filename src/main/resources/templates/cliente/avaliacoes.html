@@ -5,6 +5,12 @@
     <title>Avaliações | ServiceMatch</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<style>
+  .aval-item { display:flex; align-items:center; justify-content:space-between; padding:12px;
+               border:1px solid var(--gray-200); border-radius:var(--radius-sm); background:#fff; }
+  [data-theme="dark"] .aval-item { background: #1a2033; border-color: var(--gray-300); }
+  [data-theme="dark"] .card[style*="background:#eff6ff"] { background: var(--primary-light) !important; border-color: var(--gray-300) !important; }
+</style>
 </head>
 <body>
 <div class="app-layout">
@@ -17,7 +23,7 @@
 <div th:if="${!#lists.isEmpty(chamadosSemAvaliacao)}" class="card mb-3" style="border-color:#bfdbfe;background:#eff6ff">
   <div class="card-header"><span class="card-title"><i class="bi bi-star" style="color:var(--warning)"></i> Chamados aguardando avaliação</span></div>
   <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
-    <div th:each="c : ${chamadosSemAvaliacao}" style="display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);background:#fff">
+    <div th:each="c : ${chamadosSemAvaliacao}" class="aval-item">
       <div>
         <div class="fw-600 text-sm" th:text="${c.titulo}">Título</div>
         <div class="text-muted text-sm" th:text="${c.profissional?.usuario?.nome + ' • ' + (c.dataConclusao != null ? #temporals.format(c.dataConclusao,'dd/MM/yyyy') : 'Concluído')}"></div>

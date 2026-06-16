@@ -10,8 +10,13 @@
 <div class="topbar"><span class="topbar-title">Minhas Avaliações</span></div>
 <div class="page-content">
 <div class="stat-cards mb-3">
-  <div class="stat-card"><div class="stat-icon amber"><i class="bi bi-star-fill"></i></div>
-    <div class="stat-info"><div class="stat-value" th:text="${profissional.avaliacaoMedia}">0</div><div class="stat-label">Nota Média</div></div></div>
+  <div class="stat-card" title="Média Móvel Exponencial (EMA, α=0,3)">
+    <div class="stat-icon amber"><i class="bi bi-star-fill"></i></div>
+    <div class="stat-info">
+      <div class="stat-value" th:text="${profissional.avaliacaoMedia}">0</div>
+      <div class="stat-label">Média Móvel (EMA)</div>
+    </div>
+  </div>
   <div class="stat-card"><div class="stat-icon blue"><i class="bi bi-chat-square-text-fill"></i></div>
     <div class="stat-info"><div class="stat-value" th:text="${avaliacoes.size()}">0</div><div class="stat-label">Total de Avaliações</div></div></div>
 </div>

@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Segurança - credenciais e dados sensíveis ###
+src/main/resources/application.properties
+src/main/resources/application-*.properties
+
+### LGPD - arquivos de upload de usuários ###
+src/main/resources/static/uploads/*
+!src/main/resources/static/uploads/.gitkeep
+
+### Logs da aplicação ###
+logs/
+*.log

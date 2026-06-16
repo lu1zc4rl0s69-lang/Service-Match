@@ -57,4 +57,10 @@ public class Profissional {
 
     @Column(name = "DS_FOTO_URL", length = 255)
     private String fotoUrl;
+
+    @Column(name = "DS_SERVICOS", length = 1000)
+    private String servicos;
+
+    @Column(name = "DS_PORTFOLIO_FOTOS", length = 2000)
+    private String portfolioFotos;
 }

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -40,6 +41,30 @@ public class Usuario {
     @Size(max = 20)
     @Column(name = "NR_TELEFONE", length = 20)
     private String telefone;
+
+    @Column(name = "NR_CPF", length = 14)
+    private String cpf;
+
+    @Column(name = "DT_NASCIMENTO")
+    private LocalDate dataNascimento;
+
+    @Column(name = "DS_ENDERECO_USR", length = 200)
+    private String endereco;
+
+    @Column(name = "DS_BAIRRO", length = 100)
+    private String bairro;
+
+    @Column(name = "DS_CIDADE_USR", length = 100)
+    private String cidadeUsuario;
+
+    @Column(name = "DS_ESTADO_USR", length = 2)
+    private String estadoUsuario;
+
+    @Column(name = "NR_CEP", length = 9)
+    private String cep;
+
+    @Column(name = "DS_FOTO_URL", length = 255)
+    private String fotoUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TP_USUARIO", nullable = false, length = 20)

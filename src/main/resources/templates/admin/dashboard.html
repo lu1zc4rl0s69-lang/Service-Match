@@ -1,54 +1,212 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"/><title>Dashboard Admin | ServiceMatch</title>
+<head>
+<meta charset="UTF-8"/>
+<title>Dashboard Admin | ServiceMatch</title>
 <link rel="stylesheet" th:href="@{/css/style.css}"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/></head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<style>
+  /* Grade de métricas */
+  .metric-grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:16px; }
+  .metric-grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px; }
+  @media(max-width:1100px){ .metric-grid-4{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:700px) { .metric-grid-4,.metric-grid-3{ grid-template-columns:1fr; } }
+
+  /* Card de métrica compacto (linha 1) */
+  .metric-card { background:#fff; border:1px solid var(--gray-200); border-radius:var(--radius); padding:20px; }
+  .metric-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+  .metric-label { font-size:.78rem; color:var(--gray-500); font-weight:500; text-transform:uppercase; letter-spacing:.03em; }
+  .metric-ico { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+  .metric-ico.amber  { background:#fef3c7; color:#d97706; }
+  .metric-ico.blue   { background:#dbeafe; color:#2563eb; }
+  .metric-ico.green  { background:#dcfce7; color:#16a34a; }
+  .metric-ico.cyan   { background:#cffafe; color:#0891b2; }
+  .metric-ico.purple { background:#ede9fe; color:#7c3aed; }
+  .metric-val { font-size:2rem; font-weight:800; color:var(--gray-900); line-height:1; }
+  .metric-sub { font-size:.76rem; margin-top:6px; color:var(--gray-500); }
+  .metric-sub.pos { color:#16a34a; }
+
+  /* Card de métrica largo (linha 2) */
+  .metric-wide { display:flex; align-items:center; gap:16px; }
+  .metric-wide-ico { width:54px; height:54px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0; }
+  .metric-wide-val { font-size:1.7rem; font-weight:800; color:var(--gray-900); }
+  .metric-wide-lbl { font-size:.8rem; color:var(--gray-500); margin-top:2px; }
+
+  /* Linha de serviço */
+  .svc-row { display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--gray-100); }
+  .svc-row:last-child { border-bottom:none; }
+  .svc-left { display:flex; flex-direction:column; gap:4px; min-width:96px; }
+  .svc-code { font-size:.72rem; font-weight:600; color:var(--gray-400); }
+  .svc-info { flex:1; }
+  .svc-title { font-weight:600; font-size:.88rem; color:var(--gray-900); }
+  .svc-client { font-size:.78rem; color:var(--gray-500); margin-top:1px; }
+
+  /* Linha de profissional */
+  .prof-row { display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--gray-100); }
+  .prof-row:last-child { border-bottom:none; }
+  .prof-row-av { width:40px; height:40px; border-radius:50%; background:#dbeafe; color:#2563eb;
+                 display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.9rem; flex-shrink:0; }
+  .prof-row-info { flex:1; min-width:0; }
+  .prof-row-name { font-weight:600; font-size:.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .prof-row-meta { font-size:.76rem; color:var(--gray-500); margin-top:1px; }
+
+  [data-theme="dark"] .metric-card { background: #1a2033; border-color: var(--gray-300); }
+  [data-theme="dark"] .metric-val,
+  [data-theme="dark"] .metric-wide-val { color: var(--gray-900); }
+</style>
+</head>
 <body>
 <div class="app-layout">
 <div th:replace="~{fragments/layout :: sidebar('Admin')}"></div>
 <div class="main-content" id="mainContent">
-<div class="topbar"><span class="topbar-title">Dashboard Administrativo</span></div>
+<div class="topbar"><span class="topbar-title">Dashboard</span></div>
 <div class="page-content">
-<div class="page-header"><h1>Painel Administrativo</h1><p>Visão geral da plataforma</p></div>
-<div class="stat-cards">
-  <div class="stat-card"><div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
-    <div class="stat-info"><div class="stat-value" th:text="${totalClientes}">0</div><div class="stat-label">Clientes</div></div></div>
-  <div class="stat-card"><div class="stat-icon green"><i class="bi bi-person-badge-fill"></i></div>
-    <div class="stat-info"><div class="stat-value" th:text="${totalProfissionais}">0</div><div class="stat-label">Profissionais</div></div></div>
-  <div class="stat-card"><div class="stat-icon amber"><i class="bi bi-clipboard-fill"></i></div>
-    <div class="stat-info"><div class="stat-value" th:text="${totalChamados}">0</div><div class="stat-label">Total Chamados</div></div></div>
-  <div class="stat-card"><div class="stat-icon red"><i class="bi bi-exclamation-circle-fill"></i></div>
-    <div class="stat-info"><div class="stat-value" th:text="${chamadosAbertos}">0</div><div class="stat-label">Chamados Abertos</div></div></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <p>Visão geral da plataforma ServiceMatch</p>
 </div>
-<div class="grid-2">
-  <div class="card">
-    <div class="card-header"><span class="card-title">Chamados Recentes</span>
-      <a th:href="@{/admin/clientes}" class="btn btn-ghost btn-sm">Ver todos <i class="bi bi-arrow-right"></i></a></div>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
-      <div th:each="c : ${chamadosRecentes}" class="chamado-card" th:classappend="'prioridade-' + ${c.prioridade.name().toLowerCase()}">
-        <div class="flex-between"><span class="chamado-title" th:text="${c.titulo}"></span>
-          <span class="badge badge-amber">Aberto</span></div>
-        <div class="chamado-meta"><i class="bi bi-person-fill"></i> <span th:text="${c.cliente.nome}"></span></div>
+
+<!-- Linha 1: 4 métricas principais -->
+<div class="metric-grid-4">
+  <div class="metric-card">
+    <div class="metric-top">
+      <span class="metric-label">Serviços Abertos</span>
+      <div class="metric-ico amber"><i class="bi bi-exclamation-circle-fill"></i></div>
+    </div>
+    <div class="metric-val" th:text="${chamadosAbertos}">0</div>
+    <div class="metric-sub">aguardando profissional</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-top">
+      <span class="metric-label">Em Andamento</span>
+      <div class="metric-ico blue"><i class="bi bi-hourglass-split"></i></div>
+    </div>
+    <div class="metric-val" th:text="${chamadosAndamento}">0</div>
+    <div class="metric-sub pos" th:text="${profissionaisDisponiveis} + ' profissionais ativos'">0 profissionais ativos</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-top">
+      <span class="metric-label">Concluídos</span>
+      <div class="metric-ico green"><i class="bi bi-check-circle-fill"></i></div>
+    </div>
+    <div class="metric-val" th:text="${chamadosConcluidos}">0</div>
+    <div class="metric-sub pos">total de serviços finalizados</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-top">
+      <span class="metric-label">Total de Chamados</span>
+      <div class="metric-ico cyan"><i class="bi bi-clipboard-fill"></i></div>
+    </div>
+    <div class="metric-val" th:text="${totalChamados}">0</div>
+    <div class="metric-sub">todos os registros da plataforma</div>
+  </div>
+</div>
+
+<!-- Linha 2: 3 métricas secundárias -->
+<div class="metric-grid-3">
+  <div class="metric-card">
+    <div class="metric-wide">
+      <div class="metric-wide-ico" style="background:#dbeafe;color:#2563eb"><i class="bi bi-people-fill"></i></div>
+      <div>
+        <div class="metric-wide-val" th:text="${totalClientes}">0</div>
+        <div class="metric-wide-lbl">Clientes Ativos</div>
       </div>
-      <div th:if="${#lists.isEmpty(chamadosRecentes)}" class="text-muted text-sm">Nenhum chamado aberto.</div>
     </div>
   </div>
+
+  <div class="metric-card">
+    <div class="metric-wide">
+      <div class="metric-wide-ico" style="background:#dcfce7;color:#16a34a"><i class="bi bi-person-badge-fill"></i></div>
+      <div>
+        <div class="metric-wide-val" th:text="${profissionaisDisponiveis}">0</div>
+        <div class="metric-wide-lbl">Profissionais Disponíveis</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-wide">
+      <div class="metric-wide-ico" style="background:#fef3c7;color:#d97706"><i class="bi bi-star-fill"></i></div>
+      <div>
+        <div class="metric-wide-val" th:text="${satisfacaoMedia}">0</div>
+        <div class="metric-wide-lbl">Satisfação Média (EMA)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Linha 3: tabelas -->
+<div class="grid-2 grid-fill">
+
+  <!-- Serviços Recentes -->
   <div class="card">
-    <div class="card-header"><span class="card-title">Profissionais Recentes</span>
-      <a th:href="@{/admin/profissionais}" class="btn btn-ghost btn-sm">Ver todos <i class="bi bi-arrow-right"></i></a></div>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
-      <div th:each="p : ${profissionaisRecentes}" class="prof-card">
-        <div class="prof-avatar" th:text="${#strings.substring(p.usuario.nome,0,2).toUpperCase()}">AB</div>
-        <div class="prof-info">
-          <div class="prof-name" th:text="${p.usuario.nome}">Nome</div>
-          <div class="prof-cat" th:text="${p.categoria?.nome}">Cat</div>
+    <div class="card-header">
+      <div>
+        <span class="card-title">Serviços Recentes</span>
+        <div class="text-muted text-sm">Últimos serviços registrados</div>
+      </div>
+      <a th:href="@{/admin/clientes}" class="btn btn-ghost btn-sm">Ver Todos <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="card-body">
+      <div th:if="${#lists.isEmpty(chamadosRecentes)}" class="text-muted text-sm">Nenhum serviço registrado.</div>
+      <div th:each="c : ${chamadosRecentes}" class="svc-row">
+        <div class="svc-left">
+          <span class="svc-code" th:text="${c.codigo}">SM-001</span>
+          <span th:if="${c.prioridade.name()=='ALTA'}"  class="badge badge-red"   style="font-size:.68rem;padding:2px 7px">alta</span>
+          <span th:if="${c.prioridade.name()=='MEDIA'}" class="badge badge-amber" style="font-size:.68rem;padding:2px 7px">média</span>
+          <span th:if="${c.prioridade.name()=='BAIXA'}" class="badge badge-green" style="font-size:.68rem;padding:2px 7px">baixa</span>
         </div>
-        <span th:if="${p.verificado}" class="badge badge-blue btn-sm"><i class="bi bi-patch-check-fill"></i> Verificado</span>
-        <span th:unless="${p.verificado}" class="badge badge-gray btn-sm">Pendente</span>
+        <div class="svc-info">
+          <div class="svc-title" th:text="${c.titulo}">Título</div>
+          <div class="svc-client" th:text="${c.cliente.nome}">Cliente</div>
+        </div>
+        <div>
+          <span th:if="${c.status.name()=='ABERTO'}"       class="badge badge-amber" style="font-size:.75rem">Aberto</span>
+          <span th:if="${c.status.name()=='EM_ANDAMENTO'}" class="badge badge-blue"  style="font-size:.75rem">Em Andamento</span>
+          <span th:if="${c.status.name()=='CONCLUIDO'}"    class="badge badge-green" style="font-size:.75rem">Concluído</span>
+          <span th:if="${c.status.name()=='CANCELADO'}"    class="badge badge-red"   style="font-size:.75rem">Cancelado</span>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Profissionais -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <span class="card-title">Profissionais</span>
+        <div class="text-muted text-sm">Status dos profissionais</div>
+      </div>
+      <a th:href="@{/admin/profissionais}" class="btn btn-ghost btn-sm">Ver Todos <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="card-body">
+      <div th:if="${#lists.isEmpty(profissionaisRecentes)}" class="text-muted text-sm">Nenhum profissional cadastrado.</div>
+      <div th:each="p : ${profissionaisRecentes}" class="prof-row">
+        <div class="prof-row-av" th:text="${#strings.substring(p.usuario.nome,0,2).toUpperCase()}">AB</div>
+        <div class="prof-row-info">
+          <div class="prof-row-name" th:text="${p.usuario.nome}">Nome</div>
+          <div class="prof-row-meta">
+            <span th:text="${p.categoria?.nome}">Cat</span>
+            <span th:if="${p.quantidadeAvaliacoes > 0}">
+              &nbsp;·&nbsp;<i class="bi bi-star-fill" style="color:#f59e0b;font-size:.65rem"></i>
+              <span th:text="${p.avaliacaoMedia}"></span>
+              &nbsp;·&nbsp;<span th:text="${p.quantidadeAvaliacoes} + ' avaliações'"></span>
+            </span>
+          </div>
+        </div>
+        <span th:if="${p.disponivel}"   class="badge badge-green" style="font-size:.75rem">Disponível</span>
+        <span th:unless="${p.disponivel}" class="badge badge-red" style="font-size:.75rem">Ocupado</span>
+      </div>
+    </div>
+  </div>
+
 </div>
 </div></div></div>
 <div th:replace="~{fragments/layout :: scripts}"></div>
-</body></html>
+</body>
+</html>

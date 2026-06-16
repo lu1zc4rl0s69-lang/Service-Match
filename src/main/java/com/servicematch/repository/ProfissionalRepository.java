@@ -23,7 +23,7 @@ public interface ProfissionalRepository extends JpaRepository<Profissional, Long
 
     @Query("SELECT p FROM Profissional p WHERE " +
            "(:categoriaId IS NULL OR p.categoria.id = :categoriaId) AND " +
-           "(:cidade IS NULL OR LOWER(p.cidade) LIKE LOWER(CONCAT('%', :cidade, '%'))) AND " +
+           "(:cidade IS NULL OR :cidade = '' OR LOWER(p.cidade) LIKE LOWER(CONCAT(:cidade, '%'))) AND " +
            "(:disponivel IS NULL OR p.disponivel = :disponivel) AND " +
            "p.usuario.ativo = true")
     List<Profissional> buscarComFiltros(

@@ -30,7 +30,7 @@
                     <select name="categoriaId" class="form-control">
                         <option value="">Todas</option>
                         <option th:each="cat : ${categorias}" th:value="${cat.id}"
-                                th:text="${cat.icone + ' ' + cat.nome}"
+                                th:text="${cat.nome}"
                                 th:selected="${cat.id == categoriaId}"></option>
                     </select>
                 </div>
@@ -77,7 +77,10 @@
                         <div class="flex-between">
                             <div>
                                 <div class="prof-name" style="font-size:1rem" th:text="${prof.usuario.nome}">Nome</div>
-                                <div class="prof-cat" th:text="${prof.categoria?.icone + ' ' + prof.categoria?.nome}">Cat</div>
+                                <div class="prof-cat">
+                              <i th:if="${prof.categoria != null}" class="bi" th:classappend="${prof.categoria.icone}"></i>
+                              <span th:text="${prof.categoria?.nome}">Cat</span>
+                            </div>
                             </div>
                             <div style="text-align:right">
                                 <span th:if="${prof.disponivel}" class="badge badge-green">Disponível</span>

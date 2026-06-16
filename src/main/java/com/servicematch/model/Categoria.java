@@ -23,8 +23,11 @@ public class Categoria {
     @Column(name = "NM_CATEGORIA", nullable = false, unique = true, length = 80)
     private String nome;
 
-    @Column(name = "DS_ICONE", length = 10)
+    @Column(name = "DS_ICONE", length = 60)
     private String icone;
+
+    @Column(name = "DS_DESCRICAO_CAT", length = 255)
+    private String descricao;
 
     @Column(name = "FL_ATIVA", nullable = false)
     private boolean ativa = true;

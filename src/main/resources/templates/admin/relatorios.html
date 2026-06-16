@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<title>Relatórios | ServiceMatch</title>
+<link rel="stylesheet" th:href="@{/css/style.css}"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<style>
+  .rel-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
+  @media(max-width:900px){ .rel-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:500px){ .rel-grid{ grid-template-columns:1fr; } }
+
+  .rel-card { background:#fff; border:1px solid var(--gray-200); border-radius:var(--radius); padding:20px 22px; }
+  .rel-card-ico { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; margin-bottom:12px; }
+  .rel-card-val { font-size:2rem; font-weight:800; color:var(--gray-900); line-height:1; }
+  .rel-card-lbl { font-size:.8rem; color:var(--gray-500); margin-top:4px; }
+
+  .status-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--gray-100); }
+  .status-row:last-child { border-bottom:none; }
+  .status-bar-wrap { flex:1; margin:0 16px; height:8px; background:var(--gray-100); border-radius:99px; overflow:hidden; }
+  .status-bar { height:100%; border-radius:99px; }
+
+  .cat-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--gray-100); }
+  .cat-row:last-child { border-bottom:none; }
+  .cat-row-name { min-width:120px; font-size:.87rem; font-weight:500; color:var(--gray-700); }
+  .cat-bar-wrap { flex:1; height:8px; background:var(--gray-100); border-radius:99px; overflow:hidden; }
+  .cat-bar { height:100%; background:#2563eb; border-radius:99px; }
+  .cat-count { font-size:.82rem; font-weight:600; color:var(--gray-600); min-width:30px; text-align:right; }
+
+  [data-theme="dark"] .rel-card { background: #1a2033; border-color: var(--gray-300); }
+  [data-theme="dark"] .rel-card-val { color: var(--gray-900); }
+  [data-theme="dark"] .status-bar-wrap,
+  [data-theme="dark"] .cat-bar-wrap { background: var(--gray-200); }
+</style>
+</head>
+<body>
+<div class="app-layout">
+<div th:replace="~{fragments/layout :: sidebar('Admin')}"></div>
+<div class="main-content" id="mainContent">
+<div class="topbar"><span class="topbar-title">Relatórios</span></div>
+<div class="page-content">
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="page-header" style="margin-bottom:20px">
+  <div>
+    <h1>Relatórios</h1>
+    <p>Visão analítica da plataforma ServiceMatch</p>
+  </div>
+</div>
+
+<!-- Cards de resumo -->
+<div class="rel-grid">
+  <div class="rel-card">
+    <div class="rel-card-ico" style="background:#dbeafe;color:#2563eb"><i class="bi bi-people-fill"></i></div>
+    <div class="rel-card-val" th:text="${totalClientes}">0</div>
+    <div class="rel-card-lbl">Clientes cadastrados</div>
+  </div>
+  <div class="rel-card">
+    <div class="rel-card-ico" style="background:#dcfce7;color:#16a34a"><i class="bi bi-person-badge-fill"></i></div>
+    <div class="rel-card-val" th:text="${totalProfissionais}">0</div>
+    <div class="rel-card-lbl">Profissionais cadastrados</div>
+  </div>
+  <div class="rel-card">
+    <div class="rel-card-ico" style="background:#fef3c7;color:#d97706"><i class="bi bi-clipboard-fill"></i></div>
+    <div class="rel-card-val" th:text="${totalChamados}">0</div>
+    <div class="rel-card-lbl">Chamados totais</div>
+  </div>
+  <div class="rel-card">
+    <div class="rel-card-ico" style="background:#ede9fe;color:#7c3aed"><i class="bi bi-star-fill"></i></div>
+    <div class="rel-card-val" th:text="${totalAvaliacoes}">0</div>
+    <div class="rel-card-lbl">Avaliações realizadas</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Status dos chamados -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Status dos Chamados</span>
+      <span class="text-muted text-sm">
+        Taxa de conclusão:
+        <strong th:text="${taxaConclusao} + '%'" style="color:#16a34a">0%</strong>
+      </span>
+    </div>
+    <div class="card-body">
+      <!-- Concluídos -->
+      <div class="status-row">
+        <div style="display:flex;align-items:center;gap:8px;min-width:120px">
+          <span class="badge badge-green" style="width:10px;height:10px;border-radius:50%;padding:0"></span>
+          <span class="text-sm fw-600">Concluídos</span>
+        </div>
+        <div class="status-bar-wrap">
+          <div class="status-bar" style="background:#16a34a"
+               th:style="'background:#16a34a;width:' + ${totalChamados > 0 ? concluidos * 100 / totalChamados : 0} + '%'"></div>
+        </div>
+        <span class="text-sm fw-600" th:text="${concluidos}">0</span>
+      </div>
+      <!-- Em andamento -->
+      <div class="status-row">
+        <div style="display:flex;align-items:center;gap:8px;min-width:120px">
+          <span class="badge badge-blue" style="width:10px;height:10px;border-radius:50%;padding:0"></span>
+          <span class="text-sm fw-600">Em andamento</span>
+        </div>
+        <div class="status-bar-wrap">
+          <div class="status-bar"
+               th:style="'background:#2563eb;width:' + ${totalChamados > 0 ? emAndamento * 100 / totalChamados : 0} + '%'"></div>
+        </div>
+        <span class="text-sm fw-600" th:text="${emAndamento}">0</span>
+      </div>
+      <!-- Abertos -->
+      <div class="status-row">
+        <div style="display:flex;align-items:center;gap:8px;min-width:120px">
+          <span class="badge badge-amber" style="width:10px;height:10px;border-radius:50%;padding:0"></span>
+          <span class="text-sm fw-600">Abertos</span>
+        </div>
+        <div class="status-bar-wrap">
+          <div class="status-bar"
+               th:style="'background:#d97706;width:' + ${totalChamados > 0 ? abertos * 100 / totalChamados : 0} + '%'"></div>
+        </div>
+        <span class="text-sm fw-600" th:text="${abertos}">0</span>
+      </div>
+      <!-- Cancelados -->
+      <div class="status-row">
+        <div style="display:flex;align-items:center;gap:8px;min-width:120px">
+          <span class="badge badge-red" style="width:10px;height:10px;border-radius:50%;padding:0"></span>
+          <span class="text-sm fw-600">Cancelados</span>
+        </div>
+        <div class="status-bar-wrap">
+          <div class="status-bar"
+               th:style="'background:#dc2626;width:' + ${totalChamados > 0 ? cancelados * 100 / totalChamados : 0} + '%'"></div>
+        </div>
+        <span class="text-sm fw-600" th:text="${cancelados}">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Satisfação + Chamados por categoria -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <!-- Satisfação média -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Satisfação Média (EMA)</span></div>
+      <div class="card-body" style="display:flex;align-items:center;gap:20px">
+        <div style="font-size:3rem;font-weight:800;color:#f59e0b" th:text="${satisfacaoMedia}">0</div>
+        <div>
+          <div class="star-rating mb-1">
+            <i class="bi bi-star-fill filled"></i>
+            <i class="bi bi-star-fill filled"></i>
+            <i class="bi bi-star-fill filled"></i>
+            <i class="bi bi-star-fill filled"></i>
+            <i class="bi bi-star-half filled"></i>
+          </div>
+          <div class="text-sm text-muted">Média de todos os profissionais avaliados</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chamados por categoria -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Chamados por Categoria</span></div>
+      <div class="card-body">
+        <div th:if="${#maps.isEmpty(chamadosPorCategoria)}" class="text-muted text-sm">Sem dados de categoria.</div>
+        <div th:each="entry : ${chamadosPorCategoria}" class="cat-row">
+          <div class="cat-row-name" th:text="${entry.key}">Cat</div>
+          <div class="cat-bar-wrap">
+            <div class="cat-bar" th:style="'width:' + ${entry.value * 100 / maxChamadosCategoria} + '%'"></div>
+          </div>
+          <div class="cat-count" th:text="${entry.value}">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
