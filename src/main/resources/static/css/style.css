@@ -637,6 +637,17 @@ tbody tr:hover td { background: var(--gray-50); }
 
 .role-tab.active { background: #fff; color: var(--gray-800); box-shadow: var(--shadow); }
 
+.section-label {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--gray-400);
+  margin: 16px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
 /* ── Page Header ──────────────────────────────────────── */
 
 .page-header {
@@ -733,12 +744,22 @@ tbody tr:hover td { background: var(--gray-50); }
 [data-theme="dark"] .filters-bar,
 [data-theme="dark"] .stat-plain { background: #1a2033; }
 
-/* ─ Inputs ─ */
+/* ─ Hero / destaque cards com gradiente claro ─ */
+[data-theme="dark"] .card-hero,
+[data-theme="dark"] .card-search-hero,
+[data-theme="dark"] .card-pending { background: #1a2033 !important; border-color: var(--gray-300) !important; }
+
+/* ─ Filters bar força sobre select nativo ─ */
+[data-theme="dark"] .filters-bar { background: #1a2033 !important; border-color: var(--gray-300) !important; }
+
+/* ─ Inputs e Selects ─ */
 [data-theme="dark"] .form-control {
   background: #141a27;
   color: var(--gray-800);
   border-color: var(--gray-300);
 }
+[data-theme="dark"] select.form-control,
+[data-theme="dark"] select.form-control option { background: #141a27; color: var(--gray-800); }
 [data-theme="dark"] .form-control::placeholder { color: var(--gray-400); }
 [data-theme="dark"] .form-control:focus { box-shadow: 0 0 0 3px rgba(59,130,246,.2); }
 

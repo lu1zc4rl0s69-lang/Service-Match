@@ -6,6 +6,10 @@
     <title>Dashboard | ServiceMatch</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<style>
+  .card-search-hero { background: linear-gradient(135deg,#eff6ff,#dbeafe); border-color: #bfdbfe; }
+  [data-theme="dark"] .card-search-hero { background: #1a2033 !important; border-color: var(--gray-300) !important; }
+</style>
 </head>
 <body>
 <div class="app-layout">
@@ -24,7 +28,7 @@
             </div>
 
             <!-- Busca rápida -->
-            <div class="card mb-3" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#bfdbfe">
+            <div class="card card-search-hero mb-3">
                 <div class="card-body">
                     <form th:action="@{/cliente/buscar}" method="get" style="display:flex;gap:12px;flex-wrap:wrap">
                         <div style="flex:1;min-width:200px;position:relative">

@@ -9,7 +9,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Controller
 @RequiredArgsConstructor
@@ -40,11 +43,16 @@ public class AuthController {
             @RequestParam String nome,
             @RequestParam String email,
             @RequestParam String telefone,
+            @RequestParam(required = false) String cpf,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataNascimento,
+            @RequestParam(required = false) String endereco,
+            @RequestParam(required = false) String bairro,
+            @RequestParam(required = false) String cep,
+            @RequestParam(required = false) String cidadeUsuario,
+            @RequestParam(required = false) String estadoUsuario,
             @RequestParam String senha,
             @RequestParam String tipo,
             @RequestParam(required = false) Long categoriaId,
-            @RequestParam(required = false) String cidade,
-            @RequestParam(required = false) String estado,
             @RequestParam(required = false) BigDecimal precoBase,
             @RequestParam(required = false) String descricao,
             RedirectAttributes redirectAttributes) {
@@ -58,6 +66,13 @@ public class AuthController {
         usuario.setNome(nome);
         usuario.setEmail(email);
         usuario.setTelefone(telefone);
+        usuario.setCpf(cpf);
+        usuario.setDataNascimento(dataNascimento);
+        usuario.setEndereco(endereco);
+        usuario.setBairro(bairro);
+        usuario.setCep(cep);
+        usuario.setCidadeUsuario(cidadeUsuario);
+        usuario.setEstadoUsuario(estadoUsuario);
         usuario.setSenha(passwordEncoder.encode(senha));
         usuario.setTipo(TipoUsuario.valueOf(tipo.toUpperCase()));
         usuarioRepository.save(usuario);
@@ -68,8 +83,8 @@ public class AuthController {
             if (categoriaId != null) {
                 categoriaRepository.findById(categoriaId).ifPresent(profissional::setCategoria);
             }
-            profissional.setCidade(cidade);
-            profissional.setEstado(estado);
+            profissional.setCidade(cidadeUsuario);
+            profissional.setEstado(estadoUsuario);
             profissional.setPrecoBase(precoBase != null ? precoBase : BigDecimal.ZERO);
             profissional.setDescricao(descricao);
             profissional.setTokens(0);
